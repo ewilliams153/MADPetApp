@@ -14,12 +14,33 @@ class DigitalPetApp extends StatefulWidget {
 }
 
 class _DigitalPetAppState extends State<DigitalPetApp> {
+  ThemeData _currentTheme = ThemeData(
+    primarySwatch: Colors.blue,
+    scaffoldBackgroundColor: Colors.white,
+  );
+
+  final ThemeData unhappyTheme = ThemeData(
+    primarySwatch: Colors.red,
+    scaffoldBackgroundColor: Colors.red,
+  );
+
+  final ThemeData happyTheme = ThemeData(
+    scaffoldBackgroundColor: Colors.green,
+  );
+
+  final ThemeData neutralTheme = ThemeData(
+    scaffoldBackgroundColor: Colors.yellow,
+  );
+  final ThemeData defaultTheme = ThemeData(
+    scaffoldBackgroundColor: Colors.white,
+  );
+
   String petName = "Your Pet";
   int happinessLevel = 50;
   int hungerLevel = 50;
   double _energyLevel = 1;
   String activity = 'Play';
-  
+
   int points = 0;
   bool lose = false;
   bool win = false;
@@ -38,6 +59,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
       });
     });
   }
+
   void _startWinConditionTimer() {
     Timer.periodic(Duration(seconds: 1), (timer) {
       if (happinessLevel > 80) {
@@ -51,7 +73,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
           lose = true;
         });
         timer.cancel();
-      } 
+      }
       if (points == 80) {
         setState(() {
           win = true;
@@ -60,6 +82,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
       }
     });
   }
+
 // Function to increase happiness and update hunger when playing withthe pet
   void _playWithPet() {
     setState(() {
@@ -115,6 +138,20 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     }
   }
 
+  void _updateBackground(){
+    setState((){
+      if(happinessLevel > 70){
+        _currentTheme = happyTheme;
+      }
+      else if(happinessLevel >=30 && happinessLevel <= 70){
+        _currentTheme = neutralTheme;
+      }
+      else if(happinessLevel < 30){
+        _currentTheme = unhappyTheme;
+      }
+    });
+  }
+
   void doActivity() {
     if (lose) return;
     if (activity == 'Play') {
@@ -126,70 +163,91 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
         _energyLevel = (_energyLevel + 0.1).clamp(0, 1);
       });
     }
+    _updateBackground();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Digital Pet'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            win ? Text("You Win!", style: TextStyle(fontSize: 30)) : SizedBox.shrink(),
-            lose ? Text("You Lose!", style: TextStyle(fontSize: 30)) : SizedBox.shrink(),
-            Text(
-              _displayMood(),
-              style: TextStyle(fontSize: 30.0),
+    return MaterialApp(
+        title: 'Stateful Widget',
+        theme: _currentTheme,
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text('Digital Pet'),
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                win
+                    ? Text("You Win!", style: TextStyle(fontSize: 30))
+                    : SizedBox.shrink(),
+                lose
+                    ? Text("You Lose!", style: TextStyle(fontSize: 30))
+                    : SizedBox.shrink(),
+                Text(
+                  _displayMood(),
+                  style: TextStyle(fontSize: 30.0),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Name: $petName',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                SizedBox(height: 16.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: LinearProgressIndicator(
+                    value: _energyLevel,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Happiness Level: $happinessLevel',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Hunger Level: $hungerLevel',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Mood: ${_getMood()}',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                SizedBox(height: 16.0),
+                DropdownButton<String>(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    value: activity,
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    items: <String>['Play', 'Feed', 'Rest'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) => activity = newValue!),
+                SizedBox(height: 16),
+                ElevatedButton(
+                    onPressed: doActivity, child: Text('Confirm Activity')),
+                SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Change Pet Name',
+                    hintText: 'Specify name here',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (val) {
+                    setState(() {
+                      petName = val;
+                    });
+                  },
+                )
+              ],
             ),
-            SizedBox(height: 20),
-            Text(
-              'Name: $petName',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            SizedBox(height: 16.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: LinearProgressIndicator(
-                value: _energyLevel,
-                borderRadius: BorderRadius.circular(5),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Happiness Level: $happinessLevel',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Hunger Level: $hungerLevel',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Mood: ${_getMood()}',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            SizedBox(height: 16.0),
-            DropdownButton<String>(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                value: activity,
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                items: <String>['Play', 'Feed', 'Rest'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) => activity = newValue!),
-            SizedBox(height: 16),
-            ElevatedButton(
-                onPressed: doActivity, child: Text('Confirm Activity')),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
