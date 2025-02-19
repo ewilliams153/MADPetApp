@@ -1,7 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
+// App created by Esther and Phi
 void main() {
   runApp(MaterialApp(
     home: DigitalPetApp(),
@@ -18,6 +18,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   int happinessLevel = 50;
   int hungerLevel = 50;
   double _energyLevel = 1;
+  String activity = 'Play';
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   void _playWithPet() {
     setState(() {
       happinessLevel = (happinessLevel + 10).clamp(0, 100);
+      _energyLevel = (_energyLevel - 0.2).clamp(0, 1);
       _updateHunger();
     });
   }
@@ -87,6 +89,18 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     }
   }
 
+  void doActivity() {
+    if (activity == 'Play') {
+      _playWithPet();
+    } else if (activity == 'Feed') {
+      _feedPet();
+    } else if (activity == 'Rest') {
+      setState(() {
+        _energyLevel = (_energyLevel + 0.1).clamp(0, 1);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,16 +143,21 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
               'Mood: ${_getMood()}',
               style: TextStyle(fontSize: 20.0),
             ),
-            SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: _playWithPet,
-              child: Text('Play with Your Pet'),
-            ),
             SizedBox(height: 16.0),
+            DropdownButton<String>(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                value: activity,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                items: <String>['Play', 'Feed', 'Rest'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) => activity = newValue!),
+            SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _feedPet,
-              child: Text('Feed Your Pet'),
-            ),
+                onPressed: doActivity, child: Text('Confirm Activity')),
           ],
         ),
       ),
