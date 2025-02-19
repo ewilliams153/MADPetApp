@@ -17,6 +17,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   String petName = "Your Pet";
   int happinessLevel = 50;
   int hungerLevel = 50;
+  double _energyLevel = 1;
 
   @override
   void initState() {
@@ -104,6 +105,14 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
             Text(
               'Name: $petName',
               style: TextStyle(fontSize: 20.0),
+            ),
+            SizedBox(height: 16.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 50),
+              child: LinearProgressIndicator(
+                value: _energyLevel,
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
             SizedBox(height: 16.0),
             Text(
