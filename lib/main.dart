@@ -19,11 +19,16 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   int hungerLevel = 50;
   double _energyLevel = 1;
   String activity = 'Play';
+  
+  int points = 0;
+  bool lose = false;
+  bool win = false;
 
   @override
   void initState() {
     super.initState();
     _startHungerTimer();
+    _startWinConditionTimer();
   }
 
   void _startHungerTimer() {
@@ -33,7 +38,28 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
       });
     });
   }
+  void _startWinConditionTimer() {
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      if (happinessLevel > 80) {
+        points += 1;
+      } else {
+        points = 0;
+      }
 
+      if (happinessLevel <= 10 && hungerLevel == 100) {
+        setState(() {
+          lose = true;
+        });
+        timer.cancel();
+      } 
+      if (points == 80) {
+        setState(() {
+          win = true;
+        });
+        timer.cancel();
+      }
+    });
+  }
 // Function to increase happiness and update hunger when playing withthe pet
   void _playWithPet() {
     setState(() {
@@ -90,6 +116,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   }
 
   void doActivity() {
+    if (lose) return;
     if (activity == 'Play') {
       _playWithPet();
     } else if (activity == 'Feed') {
@@ -111,6 +138,8 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            win ? Text("You Win!", style: TextStyle(fontSize: 30)) : SizedBox.shrink(),
+            lose ? Text("You Lose!", style: TextStyle(fontSize: 30)) : SizedBox.shrink(),
             Text(
               _displayMood(),
               style: TextStyle(fontSize: 30.0),
